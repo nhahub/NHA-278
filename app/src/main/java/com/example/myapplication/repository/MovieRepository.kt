@@ -1,5 +1,6 @@
 package com.example.myapplication.repository
 
+import androidx.lifecycle.LiveData
 import com.example.myapplication.model.Movie
 import com.example.myapplication.network.Genre
 import com.example.myapplication.network.MovieDetails
@@ -32,5 +33,24 @@ class MovieRepository {
 
     suspend fun getMovieDetails(apiKey: String, movieId: Int): MovieDetails {
         return tmdbApi.getMovieDetails(movieId, apiKey)
+    }
+    suspend fun addFavorite(movie: Movie) {
+        movieDao?.insertFavorite(movie)
+    }
+
+    suspend fun removeFavorite(movie: Movie) {
+        movieDao?.deleteFavorite(movie)
+    }
+
+    suspend fun removeFavoriteById(movieId: Int) {
+        movieDao?.deleteFavoriteById(movieId)
+    }
+
+    fun getAllFavorites(): LiveData<List<Movie>>? {
+        return movieDao?.getAllFavorites()
+    }
+
+    suspend fun isFavorite(movieId: Int): Boolean {
+        return movieDao?.getFavoriteById(movieId) != null
     }
 }

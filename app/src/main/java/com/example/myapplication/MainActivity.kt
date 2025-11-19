@@ -64,7 +64,7 @@ import androidx.navigation.navArgument
 import coil.compose.rememberAsyncImagePainter
 import com.example.myapplication.model.Movie
 import com.example.myapplication.network.Genre
-import com.example.myapplication.ui.FavouritesScreen
+import com.example.myapplication.ui.FavoritesScreen
 import com.example.myapplication.ui.MovieDetailsScreen
 import com.example.myapplication.ui.SettingsScreen
 import com.example.myapplication.ui.theme.MyApplicationTheme
@@ -129,7 +129,29 @@ fun MovieApp(viewModel: MovieViewModel) {
             }
             composable("favourites") {
                 Box(Modifier.padding(innerPadding)) {
-                    FavouritesScreen()
+                    val favoriteMovies: List<Movie> by viewModel.favoriteMovies?.observeAsState(initial = emptyList()) ?: remember { mutableStateOf(emptyList()) }
+                    FavoritesScreen(
+                        favoriteMovies = favoriteMovies,
+                        onMovieClick = { movie ->
+                            navController.navigate("movieDetails/${movie.id}")
+                        },
+                        onBackClick = {
+                            navController.navigateUp()
+                        },
+                        onDiscoverClick = {
+                            navController.navigate("home") {
+                                popUpTo(navController.graph.startDestinationId) {
+                                    saveState = true
+                                }
+                                launchSingleTop = true
+                                restoreState = true
+                            }
+                        },
+                        onToggleFavorite = { movie ->
+                            viewModel.toggleFavorite(movie)
+                        },
+                        modifier = Modifier.padding(innerPadding)
+                    )
                 }
             }
             composable("settings") {
@@ -200,7 +222,9 @@ fun MovieListScreen(viewModel: MovieViewModel, navController: NavController, pad
         contentPadding = paddingValues,
     ) {
         items(movies) { movie ->
-            MovieItem(movie = movie, genres = genres, onClick = { navController.navigate("movieDetails/${movie.id}") })
+            MovieItem(movie = movie, genres = genres, onClick = { navController.navigate("movieDetails/${movie.id}") } ,                 onFavoriteClick = {
+                viewModel.toggleFavorite(movie )
+            })
         }
     }
 
@@ -227,7 +251,7 @@ fun InfiniteScrollHandler(listState: LazyGridState, onLoadMore: () -> Unit) {
 }
 
 @Composable
-fun MovieItem(movie: Movie, genres: List<Genre>, onClick: () -> Unit) {
+fun MovieItem(movie: Movie, genres: List<Genre>, onClick: () -> Unit ,  onFavoriteClick: () -> Unit) {
     var isLiked by remember { mutableStateOf(false) }
     val genreNames = movie.genre_ids.mapNotNull { genreId ->
         genres.find { it.id == genreId }?.name
@@ -261,11 +285,11 @@ fun MovieItem(movie: Movie, genres: List<Genre>, onClick: () -> Unit) {
                         style = MaterialTheme.typography.bodySmall,
                         modifier = Modifier.weight(1f)
                     )
-                    IconButton(onClick = { isLiked = !isLiked }) {
+                    IconButton(onClick = onFavoriteClick) {
                         Icon(
-                            imageVector = if (isLiked) Icons.Filled.Favorite else Icons.Filled.FavoriteBorder,
+                            imageVector = if (movie.isFavorite) Icons.Filled.Favorite else Icons.Filled.FavoriteBorder,
                             contentDescription = "Like button",
-                            tint = if (isLiked) Color.Red else Color.Gray
+                            tint = if (movie.isFavorite) Color.Red else Color.Gray
                         )
                     }
                 }

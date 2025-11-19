@@ -23,7 +23,7 @@ class MovieViewModel : ViewModel() {
 
     private var currentPage = 1
     private var isFetching = false
-
+    var favoriteMovies: LiveData<List<Movie>>? = repository.getAllFavorites()
     init {
         getGenres("29ce302f6eca1821e86f58a948079f84")
     }
@@ -49,6 +49,49 @@ class MovieViewModel : ViewModel() {
     fun getMovieDetails(apiKey: String, movieId: Int) {
         viewModelScope.launch {
             _movieDetails.postValue(repository.getMovieDetails(apiKey, movieId))
+        }
+    }
+
+
+
+    fun toggleFavorite(movie: Movie) {
+        viewModelScope.launch {
+            val newFavoriteStatus = !movie.isFavorite
+
+            if (newFavoriteStatus) {
+                repository.addFavorite(Movie(
+                    id = movie.id,
+                    genre_ids = movie.genre_ids,
+                    overview = movie.overview,
+                    poster_path = movie.poster_path,
+                    title = movie.title,
+                    vote_average = movie.vote_average,
+                    isFavorite = newFavoriteStatus,
+                ))
+
+            } else {
+//                movie.isFavorite = true
+                repository.removeFavorite(movie)
+            }
+
+            // Update the movies list to reflect the change
+            val currentList = _movies.value ?: emptyList()
+            val updatedList = currentList.map { movieElement ->
+                if (movie.id == movieElement.id) {
+                    movieElement.copy(
+                        id = movieElement.id,
+                        title = movieElement.title,
+                        overview = movieElement.overview,
+                        poster_path = movieElement.poster_path,
+                        vote_average = movieElement.vote_average,
+                        genre_ids = movieElement.genre_ids,
+                        isFavorite = newFavoriteStatus
+                    )
+                } else {
+                    movieElement
+                }
+            }
+            _movies.postValue(updatedList)
         }
     }
 }
