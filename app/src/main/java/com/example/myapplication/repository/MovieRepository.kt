@@ -1,6 +1,7 @@
 package com.example.myapplication.repository
 
 import androidx.lifecycle.LiveData
+import com.example.myapplication.database.MovieDao
 import com.example.myapplication.model.Movie
 import com.example.myapplication.network.Genre
 import com.example.myapplication.network.MovieDetails
@@ -8,7 +9,7 @@ import com.example.myapplication.network.TMDbApi
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
 
-class MovieRepository {
+class MovieRepository(private val movieDao: MovieDao? = null) {
     private val tmdbApi: TMDbApi
     private var genres: List<Genre>? = null
 
