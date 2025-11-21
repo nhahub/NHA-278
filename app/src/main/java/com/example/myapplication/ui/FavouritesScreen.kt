@@ -34,61 +34,44 @@ fun FavoritesScreen(
     onDiscoverClick: () -> Unit = {},
     onToggleFavorite: (Movie) -> Unit = {},
     modifier: Modifier = Modifier
-) {
-    Scaffold(
-        topBar = {
-            TopAppBar(
-                title = {
-                    Text(
-                        text = "My Favorites",
-                        fontSize = 20.sp,
-                        fontWeight = FontWeight.Bold
-                    )
-                },
-                navigationIcon = {
-                    IconButton(onClick = onBackClick) {
-                        Icon(
-                            imageVector = Icons.Default.ArrowBack,
-                            contentDescription = "Back"
-                        )
-                    }
-                }
+) {    Scaffold(
+    topBar = {
+        // ... (TopAppBar remains the same)
+    },
+    modifier = modifier // This modifier is for the Scaffold itself
+) { paddingValues -> // This contains the padding needed for the TopAppBar
+    Box(
+        modifier = Modifier
+            .fillMaxSize()
+        // The padding from the Scaffold should NOT be applied here.
+    ) {
+        if (favoriteMovies.isEmpty()) {
+            // Empty State
+            EmptyFavoritesState(
+                onDiscoverClick = onDiscoverClick
             )
-        },
-        modifier = modifier
-    ) { paddingValues ->
-        Box(
-            modifier = Modifier
-                .fillMaxSize()
-                .padding(paddingValues)
-        ) {
-            if (favoriteMovies.isEmpty()) {
-                // Empty State
-                EmptyFavoritesState(
-                    onDiscoverClick = onDiscoverClick
-                )
-            } else {
-                // Movies Grid
-                LazyVerticalGrid(
-                    columns = GridCells.Fixed(2),
-                    contentPadding = PaddingValues(16.dp),
-                    horizontalArrangement = Arrangement.spacedBy(12.dp),
-                    verticalArrangement = Arrangement.spacedBy(16.dp),
-                    modifier = Modifier.fillMaxSize()
-                ) {
-                    items(favoriteMovies) { movie ->
-                        MovieItem(
-                            movie = movie,
-                            genres = emptyList(),
-                            onClick = { onMovieClick(movie) },
-                            onFavoriteClick = { onToggleFavorite(movie) },
+        } else {
+            // Movies Grid
+            LazyVerticalGrid(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .padding(16.dp), // Add padding as needed
+                columns = GridCells.Fixed(2),
+                contentPadding = PaddingValues(8.dp),
+            ) {
+                items(favoriteMovies) { movie ->
+                    MovieItem(
+                        movie = movie,
+                        genres = emptyList(),
+                        onClick = { onMovieClick(movie) },
+                        onFavoriteClick = { onToggleFavorite(movie) },
 
-                            )
-                    }
+                        )
                 }
             }
         }
     }
+}
 }
 
 

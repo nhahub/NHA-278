@@ -1,17 +1,21 @@
 package com.example.myapplication.viewmodel
 
+import android.app.Application
+import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
-import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.example.myapplication.database.AppDatabase
 import com.example.myapplication.model.Movie
 import com.example.myapplication.network.Genre
 import com.example.myapplication.network.MovieDetails
 import com.example.myapplication.repository.MovieRepository
 import kotlinx.coroutines.launch
+import kotlin.collections.emptyList
 
-class MovieViewModel : ViewModel() {
-    private val repository = MovieRepository()
+class MovieViewModel(application: Application) : AndroidViewModel(application) {
+    private val database = AppDatabase.getDatabase(application)
+    private val repository = MovieRepository(database.movieDao())
     private val _movies = MutableLiveData<List<Movie>>()
     val movies: LiveData<List<Movie>> = _movies
 
@@ -33,6 +37,10 @@ class MovieViewModel : ViewModel() {
         isFetching = true
         viewModelScope.launch {
             val newMovies = repository.getPopularMovies(apiKey, currentPage)
+            // Check if each movie is a favorite
+            newMovies.forEach { movie ->
+                movie.isFavorite = repository.isFavorite(movie.id)
+            }
             val currentMovies = _movies.value ?: emptyList()
             _movies.postValue(currentMovies + newMovies)
             currentPage++

@@ -128,7 +128,7 @@ fun MovieApp(viewModel: MovieViewModel) {
                 MovieListScreen(viewModel, navController, innerPadding) { /* TODO: Implement search logic */ }
             }
             composable("favourites") {
-                Box(Modifier.padding(innerPadding)) {
+
                     val favoriteMovies: List<Movie> by viewModel.favoriteMovies?.observeAsState(initial = emptyList()) ?: remember { mutableStateOf(emptyList()) }
                     FavoritesScreen(
                         favoriteMovies = favoriteMovies,
@@ -152,7 +152,6 @@ fun MovieApp(viewModel: MovieViewModel) {
                         },
                         modifier = Modifier.padding(innerPadding)
                     )
-                }
             }
             composable("settings") {
                 Box(Modifier.padding(innerPadding)) {
