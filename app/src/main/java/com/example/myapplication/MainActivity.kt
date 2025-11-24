@@ -41,6 +41,7 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
 import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
@@ -69,24 +70,80 @@ import com.example.myapplication.ui.MovieDetailsScreen
 import com.example.myapplication.ui.SettingsScreen
 import com.example.myapplication.ui.theme.MyApplicationTheme
 import com.example.myapplication.viewmodel.MovieViewModel
+import com.example.reg_with_firebase.AnonymousSignInScreen
+import com.example.reg_with_firebase.HomeScreen
+import com.example.reg_with_firebase.LoginScreen
+import com.example.reg_with_firebase.SignupScreen
+import com.google.firebase.FirebaseApp
+import com.google.firebase.auth.FirebaseAuth
 import java.util.Locale
+
+
+
 
 class MainActivity : ComponentActivity() {
     private val movieViewModel: MovieViewModel by viewModels()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        FirebaseApp.initializeApp(this)
         enableEdgeToEdge()
         setContent {
             MyApplicationTheme {
                 Surface(modifier = Modifier.fillMaxSize()) {
-                    MovieApp(movieViewModel)
+                    val auth = FirebaseAuth.getInstance()
+                    var isLoggedIn by remember { mutableStateOf(auth.currentUser != null)   // Initialize with current auth state
+                    }
+
+                    DisposableEffect(auth) // Observe auth state
+                    {
+                        val listener = FirebaseAuth.AuthStateListener { firebaseAuth ->
+                            isLoggedIn = firebaseAuth.currentUser != null
+                        }
+                        auth.addAuthStateListener(listener)
+                        onDispose {
+                            auth.removeAuthStateListener(listener)
+                        }
+                    }
+
+                    if (isLoggedIn) {
+                        MovieApp(movieViewModel)
+                    } else {
+                        Authapp()
+                    }
                 }
             }
         }
         movieViewModel.getPopularMovies("29ce302f6eca1821e86f58a948079f84")
     }
 }
+
+@Composable
+fun Authapp(modifier: Modifier = Modifier){
+    val navController = rememberNavController()
+    // The login screen is now the starting point
+    NavHost(
+        navController = navController,
+        startDestination = "login",
+        modifier = modifier
+    ) {
+        composable("login") {
+            LoginScreen(navController)
+        }
+        composable("signup") {
+            SignupScreen(navController)
+        }
+        composable("home") {
+            // This screen is reached on successful login/signup,
+            // which triggers the state change in MainActivity to show MovieApp
+            HomeScreen(navController)
+        }
+        composable("anonymous") {
+            AnonymousSignInScreen(navController)
+        }
+    }
+}
+
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -129,29 +186,29 @@ fun MovieApp(viewModel: MovieViewModel) {
             }
             composable("favourites") {
 
-                    val favoriteMovies: List<Movie> by viewModel.favoriteMovies?.observeAsState(initial = emptyList()) ?: remember { mutableStateOf(emptyList()) }
-                    FavoritesScreen(
-                        favoriteMovies = favoriteMovies,
-                        onMovieClick = { movie ->
-                            navController.navigate("movieDetails/${movie.id}")
-                        },
-                        onBackClick = {
-                            navController.navigateUp()
-                        },
-                        onDiscoverClick = {
-                            navController.navigate("home") {
-                                popUpTo(navController.graph.startDestinationId) {
-                                    saveState = true
-                                }
-                                launchSingleTop = true
-                                restoreState = true
+                val favoriteMovies: List<Movie> by viewModel.favoriteMovies?.observeAsState(initial = emptyList()) ?: remember { mutableStateOf(emptyList()) }
+                FavoritesScreen(
+                    favoriteMovies = favoriteMovies,
+                    onMovieClick = { movie ->
+                        navController.navigate("movieDetails/${movie.id}")
+                    },
+                    onBackClick = {
+                        navController.navigateUp()
+                    },
+                    onDiscoverClick = {
+                        navController.navigate("home") {
+                            popUpTo(navController.graph.startDestinationId) {
+                                saveState = true
                             }
-                        },
-                        onToggleFavorite = { movie ->
-                            viewModel.toggleFavorite(movie)
-                        },
-                        modifier = Modifier.padding(innerPadding)
-                    )
+                            launchSingleTop = true
+                            restoreState = true
+                        }
+                    },
+                    onToggleFavorite = { movie ->
+                        viewModel.toggleFavorite(movie)
+                    },
+                    modifier = Modifier.padding(innerPadding)
+                )
             }
             composable("settings") {
                 Box(Modifier.padding(innerPadding)) {
@@ -207,7 +264,6 @@ sealed class NavigationItem(var route: String, var icon: ImageVector, var title:
     object Favourites : NavigationItem("favourites", Icons.Default.Favorite, "Favourite")
     object Settings : NavigationItem("settings", Icons.Default.Settings, "Settings")
 }
-
 
 @Composable
 fun MovieListScreen(viewModel: MovieViewModel, navController: NavController, paddingValues: PaddingValues, onLoadMore: () -> Unit) {
