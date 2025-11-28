@@ -73,6 +73,7 @@ dependencies {
 
     // Navigation - Removed duplicate entry
     implementation("androidx.navigation:navigation-compose:2.7.7")
+    implementation(libs.core.ktx)
 
     // Testing
     testImplementation("junit:junit:4.13.2")
@@ -121,5 +122,30 @@ dependencies {
 
     // optional - Paging 3 Integration
     implementation("androidx.room:room-paging:$room_version")
+
+    // ----------------------------
+// JUNIT 5 (Android compatible)
+// ----------------------------
+    testImplementation("org.junit.jupiter:junit-jupiter-api:5.11.0")
+    testRuntimeOnly("org.junit.jupiter:junit-jupiter-engine:5.11.0")
+    testImplementation("org.junit.jupiter:junit-jupiter-params:5.11.0")
+// Needed for Android Gradle Plugin to run JUnit5 tests
+    testImplementation("de.mannodermaus.junit5:android-test-core:1.3.0")
+    testRuntimeOnly("de.mannodermaus.junit5:android-test-runner:1.3.0")
+// ----------------------------
+// Mockito + Mockito-Kotlin
+// ----------------------------
+    testImplementation("org.mockito:mockito-core:5.12.0")
+    testImplementation("org.mockito.kotlin:mockito-kotlin:5.2.1")
+// Optional: mock final classes (Retrofit auto-generated classes)
+    testImplementation("org.mockito:mockito-inline:5.2.0")
+// ----------------------------
+// Coroutines Test
+// ----------------------------
+    testImplementation("org.jetbrains.kotlinx:kotlinx-coroutines-test:1.8.1")
+// ----------------------------
+// LiveData Testing
+// ----------------------------
+    testImplementation("androidx.arch.core:core-testing:2.2.0")
 
 }

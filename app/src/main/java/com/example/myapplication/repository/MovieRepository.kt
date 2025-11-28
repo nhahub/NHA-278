@@ -25,6 +25,10 @@ class MovieRepository(private val movieDao: MovieDao? = null) {
         return tmdbApi.getPopularMovies(apiKey, page).results
     }
 
+    suspend fun searchForMovies(apiKey: String, query:String, page: Int): List<Movie> {
+        return tmdbApi.searchMovies(apiKey, query,page).results
+    }
+
     suspend fun getGenres(apiKey: String): List<Genre> {
         if (genres == null) {
             genres = tmdbApi.getGenres(apiKey).genres

@@ -9,7 +9,6 @@ import androidx.compose.foundation.Image
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.aspectRatio
@@ -17,11 +16,7 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyGridState
-import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
-import androidx.compose.foundation.lazy.grid.items
-import androidx.compose.foundation.lazy.grid.rememberLazyGridState
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Favorite
 import androidx.compose.material.icons.filled.FavoriteBorder
@@ -38,7 +33,6 @@ import androidx.compose.material3.NavigationBarItem
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
-import androidx.compose.material3.TextField
 import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
@@ -48,6 +42,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -65,9 +60,12 @@ import androidx.navigation.navArgument
 import coil.compose.rememberAsyncImagePainter
 import com.example.myapplication.model.Movie
 import com.example.myapplication.network.Genre
+import com.example.myapplication.presentation.screens.MovieListScreen
+import com.example.myapplication.presentation.screens.MovieSearchScreen
 import com.example.myapplication.ui.FavoritesScreen
 import com.example.myapplication.ui.MovieDetailsScreen
 import com.example.myapplication.ui.SettingsScreen
+import com.example.myapplication.ui.components.SearchTextField
 import com.example.myapplication.ui.theme.MyApplicationTheme
 import com.example.myapplication.viewmodel.MovieViewModel
 import com.example.reg_with_firebase.AnonymousSignInScreen
@@ -77,8 +75,6 @@ import com.example.reg_with_firebase.SignupScreen
 import com.google.firebase.FirebaseApp
 import com.google.firebase.auth.FirebaseAuth
 import java.util.Locale
-
-
 
 
 class MainActivity : ComponentActivity() {
@@ -92,8 +88,7 @@ class MainActivity : ComponentActivity() {
             MyApplicationTheme {
                 Surface(modifier = Modifier.fillMaxSize()) {
                     val auth = FirebaseAuth.getInstance()
-                    var isLoggedIn by remember { mutableStateOf(auth.currentUser != null)   // Initialize with current auth state
-                    }
+                    var isLoggedIn by remember { mutableStateOf(auth.currentUser != null) }
 
                     DisposableEffect(auth) // Observe auth state
                     {
@@ -119,7 +114,7 @@ class MainActivity : ComponentActivity() {
 }
 
 @Composable
-fun Authapp(modifier: Modifier = Modifier){
+fun Authapp(modifier: Modifier = Modifier) {
     val navController = rememberNavController()
     // The login screen is now the starting point
     NavHost(
@@ -151,23 +146,26 @@ fun MovieApp(viewModel: MovieViewModel) {
     val navController = rememberNavController()
     val navBackStackEntry by navController.currentBackStackEntryAsState()
     val currentRoute = navBackStackEntry?.destination?.route
-
+    var searchQuery by rememberSaveable() {
+        mutableStateOf("")
+    }
     Scaffold(
         topBar = {
-            if (currentRoute == "home" || currentRoute == "search") {
+            if (currentRoute == "home" || currentRoute == "search"||currentRoute == "favourites") {
                 TopAppBar(
                     title = {
-                        if (currentRoute == "home") {
-                            Text("Movie Box")
-                        } else {
-                            var text by remember { mutableStateOf("") }
-                            TextField(
-                                value = text,
-                                onValueChange = { text = it },
-                                placeholder = { Text("Search movies...") },
-                                modifier = Modifier.fillMaxWidth(),
-                                singleLine = true
-                            )
+                        when (currentRoute) {
+                            "home" -> {
+                                Text("Movie Box")
+                            }
+                            "favourites" -> {
+                                Text("Favourite Movies")
+                            }
+                            else -> {
+                                SearchTextField {
+                                    searchQuery = it
+                                }
+                            }
                         }
                     }
                 )
@@ -179,14 +177,24 @@ fun MovieApp(viewModel: MovieViewModel) {
     ) { innerPadding ->
         NavHost(navController = navController, startDestination = "home", modifier = Modifier) {
             composable("home") {
-                MovieListScreen(viewModel, navController, innerPadding) { viewModel.getPopularMovies("29ce302f6eca1821e86f58a948079f84") }
+                MovieListScreen(
+                    viewModel,
+                    navController,
+                    innerPadding
+                ) { viewModel.getPopularMovies("29ce302f6eca1821e86f58a948079f84") }
             }
             composable("search") {
-                MovieListScreen(viewModel, navController, innerPadding) { /* TODO: Implement search logic */ }
+                MovieSearchScreen(
+                    viewModel,
+                    navController,
+                    innerPadding,
+                    searchQuery
+                )
             }
             composable("favourites") {
 
-                val favoriteMovies: List<Movie> by viewModel.favoriteMovies?.observeAsState(initial = emptyList()) ?: remember { mutableStateOf(emptyList()) }
+                val favoriteMovies: List<Movie> by viewModel.favoriteMovies?.observeAsState(initial = emptyList())
+                    ?: remember { mutableStateOf(emptyList()) }
                 FavoritesScreen(
                     favoriteMovies = favoriteMovies,
                     onMovieClick = { movie ->
@@ -217,7 +225,9 @@ fun MovieApp(viewModel: MovieViewModel) {
             }
             composable(
                 "movieDetails/{movieId}",
-                arguments = listOf(navArgument("movieId") { type = androidx.navigation.NavType.IntType })
+                arguments = listOf(navArgument("movieId") {
+                    type = androidx.navigation.NavType.IntType
+                })
             ) { backStackEntry ->
                 val movieId = backStackEntry.arguments?.getInt("movieId")
                 if (movieId != null) {
@@ -266,28 +276,6 @@ sealed class NavigationItem(var route: String, var icon: ImageVector, var title:
 }
 
 @Composable
-fun MovieListScreen(viewModel: MovieViewModel, navController: NavController, paddingValues: PaddingValues, onLoadMore: () -> Unit) {
-    val movies: List<Movie> by viewModel.movies.observeAsState(initial = emptyList())
-    val genres: List<Genre> by viewModel.genres.observeAsState(initial = emptyList())
-    val listState = rememberLazyGridState()
-
-    LazyVerticalGrid(
-        columns = GridCells.Fixed(2),
-        state = listState,
-        contentPadding = paddingValues,
-    ) {
-        items(movies) { movie ->
-            MovieItem(movie = movie, genres = genres, onClick = { navController.navigate("movieDetails/${movie.id}") } ,                 onFavoriteClick = {
-                viewModel.toggleFavorite(movie )
-            })
-        }
-    }
-
-    InfiniteScrollHandler(listState = listState, onLoadMore = onLoadMore)
-
-}
-
-@Composable
 fun InfiniteScrollHandler(listState: LazyGridState, onLoadMore: () -> Unit) {
     val shouldLoadMore by remember {
         derivedStateOf {
@@ -306,12 +294,13 @@ fun InfiniteScrollHandler(listState: LazyGridState, onLoadMore: () -> Unit) {
 }
 
 @Composable
-fun MovieItem(movie: Movie, genres: List<Genre>, onClick: () -> Unit ,  onFavoriteClick: () -> Unit) {
+fun MovieItem(movie: Movie, genres: List<Genre>, onClick: () -> Unit, onFavoriteClick: () -> Unit) {
     var isLiked by remember { mutableStateOf(false) }
     val genreNames = movie.genre_ids.mapNotNull { genreId ->
         genres.find { it.id == genreId }?.name
     }.joinToString(", ")
 
+    println("https://image.tmdb.org/t/p/w500${movie.poster_path}")
     Card(
         modifier = Modifier
             .padding(4.dp)
@@ -320,7 +309,7 @@ fun MovieItem(movie: Movie, genres: List<Genre>, onClick: () -> Unit ,  onFavori
     ) {
         Column {
             Image(
-                painter = rememberAsyncImagePainter("https://image.tmdb.org/t/p/w500" + movie.poster_path),
+                painter = rememberAsyncImagePainter("https://image.tmdb.org/t/p/w200" + movie.poster_path),
                 contentDescription = movie.title,
                 modifier = Modifier
                     .fillMaxWidth()

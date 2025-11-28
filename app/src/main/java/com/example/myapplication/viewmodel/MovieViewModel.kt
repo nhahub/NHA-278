@@ -27,6 +27,14 @@ class MovieViewModel(application: Application) : AndroidViewModel(application) {
 
     private var currentPage = 1
     private var isFetching = false
+
+
+    private val _searchResults = MutableLiveData<List<Movie>>()
+    val searchResults: LiveData<List<Movie>> = _searchResults
+    private var currentSearchPage = 1
+    var isSearching = MutableLiveData<Boolean>(false)
+    private var lastSearchQuery: String = ""
+
     var favoriteMovies: LiveData<List<Movie>>? = repository.getAllFavorites()
     init {
         getGenres("29ce302f6eca1821e86f58a948079f84")
@@ -60,7 +68,32 @@ class MovieViewModel(application: Application) : AndroidViewModel(application) {
         }
     }
 
+    fun searchMovies(query: String) {
+        // If new search, reset
+        if (query != lastSearchQuery) {
+            currentSearchPage = 1
+            _searchResults.postValue(emptyList())
+            lastSearchQuery = query
+        }
 
+        if (isSearching.value?:false) return
+        isSearching.postValue(true)
+
+        viewModelScope.launch {
+            val results = repository.searchForMovies("29ce302f6eca1821e86f58a948079f84", query, currentSearchPage)
+
+            // Mark favorites
+            results.forEach { movie ->
+                movie.isFavorite = repository.isFavorite(movie.id)
+            }
+
+            val currentList = _searchResults.value ?: emptyList()
+            _searchResults.postValue(currentList + results)
+
+            currentSearchPage++
+            isSearching.postValue(false)
+        }
+    }
 
     fun toggleFavorite(movie: Movie) {
         viewModelScope.launch {
@@ -100,6 +133,94 @@ class MovieViewModel(application: Application) : AndroidViewModel(application) {
                 }
             }
             _movies.postValue(updatedList)
+        }
+    }
+
+    fun toggleFavoriteByID(movieID: Int) {
+        viewModelScope.launch {
+            val movie =_movies.value?.find {
+                it.id==movieID
+            }
+            if (movie==null){
+                return@launch
+            }
+            val newFavoriteStatus = !movie.isFavorite
+
+            if (newFavoriteStatus) {
+                repository.addFavorite(Movie(
+                    id = movie.id,
+                    genre_ids = movie.genre_ids,
+                    overview = movie.overview,
+                    poster_path = movie.poster_path,
+                    title = movie.title,
+                    vote_average = movie.vote_average,
+                    isFavorite = newFavoriteStatus,
+                ))
+
+            } else {
+//                movie.isFavorite = true
+                repository.removeFavorite(movie)
+            }
+
+            // Update the movies list to reflect the change
+            val currentList = _movies.value ?: emptyList()
+            val updatedList = currentList.map { movieElement ->
+                if (movie.id == movieElement.id) {
+                    movieElement.copy(
+                        id = movieElement.id,
+                        title = movieElement.title,
+                        overview = movieElement.overview,
+                        poster_path = movieElement.poster_path,
+                        vote_average = movieElement.vote_average,
+                        genre_ids = movieElement.genre_ids,
+                        isFavorite = newFavoriteStatus
+                    )
+                } else {
+                    movieElement
+                }
+            }
+            _movies.postValue(updatedList)
+        }
+    }
+
+    fun toggleFavoriteInSearch(movie: Movie) {
+        viewModelScope.launch {
+            val newFavoriteStatus = !movie.isFavorite
+
+            if (newFavoriteStatus) {
+                repository.addFavorite(Movie(
+                    id = movie.id,
+                    genre_ids = movie.genre_ids,
+                    overview = movie.overview,
+                    poster_path = movie.poster_path,
+                    title = movie.title,
+                    vote_average = movie.vote_average,
+                    isFavorite = newFavoriteStatus,
+                ))
+
+            } else {
+//                movie.isFavorite = true
+                repository.removeFavorite(movie)
+            }
+
+            // Update the movies list to reflect the change
+            val currentList = _searchResults.value ?: emptyList()
+            val updatedList = currentList.map { movieElement ->
+                if (movie.id == movieElement.id) {
+                    movieElement.copy(
+                        id = movieElement.id,
+                        title = movieElement.title,
+                        overview = movieElement.overview,
+                        poster_path = movieElement.poster_path,
+                        vote_average = movieElement.vote_average,
+                        genre_ids = movieElement.genre_ids,
+                        isFavorite = newFavoriteStatus
+                    )
+                } else {
+                    movieElement
+                }
+            }
+            _searchResults.postValue(updatedList)
         }
     }
 }

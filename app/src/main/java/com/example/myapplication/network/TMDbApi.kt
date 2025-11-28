@@ -1,6 +1,5 @@
 package com.example.myapplication.network
 
-import com.example.myapplication.model.Movie
 import com.example.myapplication.model.MovieResponse
 import retrofit2.http.GET
 import retrofit2.http.Path
@@ -23,6 +22,13 @@ interface TMDbApi {
         @Path("movie_id") movieId: Int,
         @Query("api_key") apiKey: String
     ): MovieDetails
+
+    @GET("search/movie")
+    suspend fun searchMovies(
+        @Query("api_key") apiKey: String,
+        @Query("query") query: String,
+        @Query("page") page: Int = 1
+    ): MovieResponse
 }
 
 data class Genre(val id: Int, val name: String)
