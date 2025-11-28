@@ -111,7 +111,6 @@ class MovieViewModel(application: Application) : AndroidViewModel(application) {
                 ))
 
             } else {
-//                movie.isFavorite = true
                 repository.removeFavorite(movie)
             }
 
