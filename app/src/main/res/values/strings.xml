@@ -1,3 +1,41 @@
 <resources>
     <string name="app_name">A Movies App</string>
+    <string name="settings_title">Settings</string>
+    <string name="theme">Theme</string>
+    <string name="dark_mode">Dark</string>
+    <string name="light_mode">Light</string>
+    <string name="system">System</string>
+    <string name="default_mode">Default</string>
+    <string name="language">Language</string>
+    <string name="lang_english">English</string>
+    <string name="lang_arabic">Arabic</string>
+    <string name="feedback">Feedback</string>
+    <string name="settings_description">Manage your app preferences.</string>
+    <string name="sign_out">Sign Out</string>
+    <string name="movie_box">Movie Box</string>
+    <string name="home">Home</string>
+    <string name="favourites">Favourites</string>
+    <string name="search">Search</string>
+    <string name="search_movies">Search Movies</string>
+    <string name="watch_trailer">Watch Trailer</string>
+    <string name="overview">Overview</string>
+    <string name="cast">Cast</string>
+    <string name="my_favourites">My Favourites</string>
+    <string name="no_favourites_">No Favourites yet</string>
+    <string name="empty_favourites_description">Start exploring movies and add them to
+        favourites by tapping the heart icon</string>
+    <string name="discover_movies">Discover Movies</string>
+    <string name="login">Login</string>
+    <string name="sign_up">Sign Up</string>
+    <string name="email">Email</string>
+    <string name="password">Password</string>
+    <string name="success_login">Login Successful!</string>
+    <string name="fail_login">Login failed</string>
+    <string name="fill_all_fields">Please fill in all fields.</string>
+    <string name="log_in">Log In</string>
+    <string name="dont_have_acc">don\'t have an account?Sign Up</string>
+    <string name="continue_as_guest">Continue as Guest</string>
+    <string name="log_out">Log Out</string>
+    <string name="success_sign_up">Sign up successful!</string>
+    <string name="fail_sign_up">Sign up failed.</string>
 </resources>
