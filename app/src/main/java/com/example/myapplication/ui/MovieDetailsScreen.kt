@@ -107,7 +107,7 @@ fun MovieDetailsScreen(
                     }
 
                     Spacer(modifier = Modifier.height(16.dp))
-                    Text(text = "Overview", style = MaterialTheme.typography.headlineSmall)
+                    Text(text =stringResource( R.string.overview), style = MaterialTheme.typography.headlineSmall)
                     Column(modifier = Modifier.clickable { isExpanded = !isExpanded }) {
                         Text(
                             text = movie.overview,
@@ -126,12 +126,12 @@ fun MovieDetailsScreen(
                         }) {
                             Icon(Icons.Default.PlayArrow, contentDescription = "Play Trailer")
                             Spacer(modifier = Modifier.width(8.dp))
-                            Text("Watch Trailer")
+                            Text(stringResource(R.string.watch_trailer))
                         }
                     }
 
                     Spacer(modifier = Modifier.height(16.dp))
-                    Text(text = "Cast", style = MaterialTheme.typography.headlineSmall)
+                    Text(text = stringResource(R.string.cast), style = MaterialTheme.typography.headlineSmall)
                     LazyRow(modifier = Modifier.padding(top = 8.dp)) {
                         items(movie.credits.cast) {
                             Column(
