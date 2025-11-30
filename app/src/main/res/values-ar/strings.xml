@@ -33,7 +33,7 @@
     <string name="fail_login">فشل تسجيل الدخول</string>
     <string name="fill_all_fields">يرجي تعبئة جميع الحقول</string>
     <string name="log_in">تسجيل الدخول</string>
-    <string name="dont_have_acc">ليس لديك حساب؟ تسجيل الدخول</string>
+    <string name="dont_have_acc">ليس لديك حساب؟إنشاء حساب</string>
     <string name="continue_as_guest">المتابعة كزائر</string>
     <string name="log_out">تسجيل الخروج</string>
     <string name="success_sign_up">تم التسجيل بنجاح!</string>
