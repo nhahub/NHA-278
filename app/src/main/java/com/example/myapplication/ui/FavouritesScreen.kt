@@ -1,6 +1,6 @@
 package com.example.myapplication.ui
 
-
+import com.example.myapplication.R
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.grid.GridCells
@@ -16,6 +16,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
@@ -35,9 +36,9 @@ fun FavoritesScreen(
     onToggleFavorite: (Movie) -> Unit = {},
     modifier: Modifier = Modifier
 ) {    Scaffold(
-    topBar = {
+    /*topBar = {
         // ... (TopAppBar remains the same)
-    },
+    },*/
     modifier = modifier // This modifier is for the Scaffold itself
 ) { paddingValues -> // This contains the padding needed for the TopAppBar
     Box(
@@ -109,7 +110,7 @@ fun EmptyFavoritesState(
 
         // Title
         Text(
-            text = "No favorites yet",
+            text = stringResource(R.string.no_favourites_),
             fontSize = 20.sp,
             fontWeight = FontWeight.SemiBold,
             color = MaterialTheme.colorScheme.onBackground
@@ -119,7 +120,7 @@ fun EmptyFavoritesState(
 
         // Description
         Text(
-            text = "Start exploring movies and add them to\nyour favorites by tapping the heart icon.",
+            text = stringResource(R.string.empty_favourites_description),
             fontSize = 14.sp,
             color = MaterialTheme.colorScheme.onSurfaceVariant,
             textAlign = TextAlign.Center,
@@ -136,7 +137,7 @@ fun EmptyFavoritesState(
                 .padding(horizontal = 16.dp)
         ) {
             Text(
-                text = "Discover Movies",
+                text = stringResource(R.string.discover_movies),
                 fontSize = 16.sp,
                 fontWeight = FontWeight.Medium
             )
