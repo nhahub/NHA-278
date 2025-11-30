@@ -165,6 +165,11 @@ fun MovieApp(viewModel: MovieViewModel, settingsViewModel: SettingsViewModel) {
         }
     ) { innerPadding ->
         NavHost(navController = navController, startDestination = "home", modifier = Modifier) {
+
+            composable("login") { LoginScreen(navController) }
+            composable("signup") { SignupScreen(navController) }
+            composable("anonymous") { AnonymousSignInScreen(navController) }
+
             composable("home") {
                 MovieListScreen(
                     viewModel,
