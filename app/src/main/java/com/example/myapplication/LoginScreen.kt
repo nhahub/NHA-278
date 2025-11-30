@@ -1,5 +1,6 @@
 package com.example.reg_with_firebase
 
+import com.example.myapplication.R
 import android.widget.Toast
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -20,6 +21,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
@@ -40,7 +42,7 @@ fun LoginScreen(navController: NavController) {
         contentAlignment = Alignment.Center
     ) {
         Column(horizontalAlignment = Alignment.CenterHorizontally) {
-            Text("Login", style = MaterialTheme.typography.headlineMedium)
+            Text(stringResource(R.string.login), style = MaterialTheme.typography.headlineMedium)
 
             Spacer(modifier = Modifier.padding(16.dp))
 
@@ -48,7 +50,7 @@ fun LoginScreen(navController: NavController) {
             OutlinedTextField(
                 value = email,
                 onValueChange = { email = it },
-                label = { Text("Email") },
+                label = { Text(stringResource(R.string.email)) },
                 modifier = Modifier.fillMaxWidth(),
                 maxLines = 1,
             )
@@ -59,7 +61,7 @@ fun LoginScreen(navController: NavController) {
             OutlinedTextField(
                 value = password,
                 onValueChange = { password = it },
-                label = { Text("Password") },
+                label = { Text(stringResource(R.string.password)) },
                 modifier = Modifier.fillMaxWidth(),
                 maxLines = 1,
                 visualTransformation = PasswordVisualTransformation(),
@@ -77,7 +79,7 @@ fun LoginScreen(navController: NavController) {
                             .addOnCompleteListener { task ->
                                 if (task.isSuccessful) {
                                     // On success, show a message and navigate to the home screen.
-                                    Toast.makeText(context, "Login successful!", Toast.LENGTH_SHORT).show()
+                                    Toast.makeText(context, R.string.success_login, Toast.LENGTH_SHORT).show()
                                     // Navigate and clear the back stack to prevent going back to the login screen.
                                     navController.navigate("home") {
                                         popUpTo(navController.graph.startDestinationId) {
@@ -87,28 +89,28 @@ fun LoginScreen(navController: NavController) {
                                     }
                                 } else {
                                     // On failure, show a more specific error message.
-                                    Toast.makeText(context, "Login failed: ${task.exception?.message}", Toast.LENGTH_LONG).show()
+                                    Toast.makeText(context, "${R.string.fail_login}: ${task.exception?.message}", Toast.LENGTH_LONG).show()
                                 }
                             }
                     } else {
                         // Prompt the user to fill in all fields.
-                        Toast.makeText(context, "Please fill in all fields.", Toast.LENGTH_SHORT).show()
+                        Toast.makeText(context, R.string.fill_all_fields, Toast.LENGTH_SHORT).show()
                     }
                 },
                 modifier = Modifier.fillMaxWidth()
             ) {
-                Text("Log In")
+                Text(stringResource(R.string.log_in))
             }
 
             Spacer(modifier = Modifier.padding(8.dp))
 
             // Text button to navigate to the sign-up screen.
             TextButton(onClick = { navController.navigate("signup") }) {
-                Text("Don\'t have an account? Sign Up")
+                Text(stringResource(R.string.dont_have_acc))
             }
 
             TextButton(onClick = { navController.navigate("anonymous") }) {
-                Text("Continue as Guest")
+                Text(stringResource(R.string.continue_as_guest))
             }
         }
     }
