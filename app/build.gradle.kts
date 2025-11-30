@@ -8,6 +8,8 @@ plugins {
 }
 
 android {
+
+
     namespace = "com.example.myapplication"
     compileSdk = 36
 
@@ -66,10 +68,10 @@ dependencies {
 
     // Navigation - Removed duplicate entry
     implementation("androidx.navigation:navigation-compose:2.7.7")
-    implementation(libs.core.ktx)
+    //implementation(libs.core.ktx)
 
     // Testing
-    testImplementation("junit:junit:4.13.2")
+   testImplementation("junit:junit:4.13.2")
     androidTestImplementation("androidx.test.ext:junit:1.2.1")
     androidTestImplementation("androidx.test.espresso:espresso-core:3.6.1")
     androidTestImplementation(platform("androidx.compose:compose-bom:2024.09.00"))
@@ -89,9 +91,9 @@ dependencies {
     implementation(libs.datastore.preferences)
 
     //Room
-    implementation(libs.androidx.room.common.jvm)
+    //implementation(libs.androidx.room.common.jvm)
     implementation(libs.androidx.room.ktx)
-    val room_version = "2.8.3"
+    val room_version = "2.6.1"
     implementation("androidx.room:room-runtime:$room_version")
 
     // If this project uses any Kotlin source, use Kotlin Symbol Processing (KSP)
