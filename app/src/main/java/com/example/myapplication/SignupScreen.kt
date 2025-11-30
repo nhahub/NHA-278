@@ -1,5 +1,6 @@
 package com.example.reg_with_firebase
 
+import com.example.myapplication.R
 import android.widget.Toast
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -19,6 +20,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
@@ -40,7 +42,7 @@ fun SignupScreen(navController: NavController) {
         contentAlignment = Alignment.Center
     ) {
         Column(horizontalAlignment = Alignment.CenterHorizontally) {
-            Text("Sign Up", style = MaterialTheme.typography.headlineMedium)
+            Text(stringResource(R.string.sign_up), style = MaterialTheme.typography.headlineMedium)
 
             Spacer(modifier = Modifier.padding(16.dp))
 
@@ -48,7 +50,7 @@ fun SignupScreen(navController: NavController) {
             OutlinedTextField(
                 value = email,
                 onValueChange = { email = it },
-                label = { Text("Email") },
+                label = { Text(stringResource(R.string.email)) },
                 modifier = Modifier.fillMaxWidth(),
                 maxLines = 1,
             )
@@ -59,7 +61,7 @@ fun SignupScreen(navController: NavController) {
             OutlinedTextField(
                 value = password,
                 onValueChange = { password = it },
-                label = { Text("Password") },
+                label = { Text(stringResource(R.string.password)) },
                 modifier = Modifier.fillMaxWidth(),
                 maxLines = 1,
                 visualTransformation = PasswordVisualTransformation(),
@@ -77,21 +79,21 @@ fun SignupScreen(navController: NavController) {
                             .addOnCompleteListener { task ->
                                 if (task.isSuccessful) {
                                     // On success, show a message and navigate to the home screen.
-                                    Toast.makeText(context, "Sign up successful!", Toast.LENGTH_SHORT).show()
+                                    Toast.makeText(context, R.string.success_sign_up, Toast.LENGTH_SHORT).show()
                                     navController.navigate("home")
                                 } else {
                                     // On failure, show a generic error message.
-                                    Toast.makeText(context, "Sign up failed.", Toast.LENGTH_SHORT).show()
+                                    Toast.makeText(context, R.string.fail_sign_up, Toast.LENGTH_SHORT).show()
                                 }
                             }
                     } else {
                         // Prompt the user to fill in all fields.
-                        Toast.makeText(context, "Please fill in all fields.", Toast.LENGTH_SHORT).show()
+                        Toast.makeText(context, R.string.fill_all_fields, Toast.LENGTH_SHORT).show()
                     }
                 },
                 modifier = Modifier.fillMaxWidth()
             ) {
-                Text("Sign Up")
+                Text(stringResource(R.string.sign_up))
             }
 
 
